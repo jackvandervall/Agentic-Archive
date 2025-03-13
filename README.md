@@ -3,7 +3,7 @@ This archive will consist of free agentic workflows. Feel free to reach out for 
 
 ## Table of Contents
 - N8N Agents
-  - Multi-Model Research Agent
+  - [Multi-Model Research Agent](https://github.com/jackvandervall/Agentic-Archive/blob/main/N8N%20Agents/Multi-Model%20Research%20Agent.json)
 
 *More coming soon.*
 
