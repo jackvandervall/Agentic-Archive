@@ -1,0 +1,970 @@
+{
+  "name": "Sub: Multi-Agent Research",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n\"Research Topic\": \"Data sector salaries\",\n\"submittedAt\": \"2025-02-19T13:37:24.463+01:00\",\n\"formMode\": \"test\"\n}"
+      },
+      "id": "66be4e67-a15c-4249-b326-8a0a8bf7d687",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        240,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Research:\n{{ $('When Executed by Another Workflow').item.json['Research Topic'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Agent Role: Query Refiner for Business Understanding\n\nInstructions:\nYou are tasked with creating new queries related to the user provided input to enhance business understanding. Analyze the provided query, infer its context and generate 5 new search queries related to the topic. Your responses should be concise, actionable, and structured for research purposes. The agent must respect the user's desired research scope and avoid adding context or terms that deviate from the orginial question or topic.\n\n- Ultimately, you will be using the user provided \"Topic of Research\" input and generateexactly five unique search queries.\n- Do NOT provide or look for additional raw datasets, only research insights.\n\nOutput the final result as JSON only, containing:\n{\n  \"topic\": \"USER_TOPIC\",\n  \"searchQueries\": [\n    \"Query_1\",\n    \"Query_2\",\n    \"Query_3\",\n    \"Query_4\",\n    \"Query_5\"\n  ]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        860,
+        100
+      ],
+      "id": "0ca6f7e6-3a38-4276-ae2c-dff0d2d3a596",
+      "name": "Query Refiner"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Research: \n{{ $('When Executed by Another Workflow').item.json['Research Topic'] }}\nSearch Query: \n{{ $json.output.searchQueries[0] }}, {{ $json.output.searchQueries[1] }}, {{ $json.output.searchQueries[2] }}, {{ $json.output.searchQueries[3] }}, {{ $json.output.searchQueries[4] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Research Assistant specialising in combining web searches to gather in-depth information from 5 unique queries provided by the user. Your research must be thorough, well-structured, and properly cited with URLs for every source.\n\n**Guidelines for Conducting Research:**\n\n1. **Topic Depth and Coverage:**  \n   - Each of the 5 queries should return detailed findings with multiple supporting points.  \n   - Combine insights from different sources to provide a comprehensive perspective in the summary.\n\n2. **Sources:**  \n   - Include titles for *every source* cited.\n   - Include URLs for *every piece of information* cited.\n   - Include author and year from every source if applicable\n   - If multiple sources support the same fact, list all URLs.\n\n3. **Verification:**  \n   - Prioritize reputable and credible sources.  \n\n4. **JSON Output Format:**  \n   Return the final research in the following JSON structure, IMPORTANT: Return the output as raw JSON, not a stringified JSON. Do not wrap the JSON in quotes or escape characters:\n\n{\n  \"topic\": \"USER_TOPIC\",\n  \"results\": [\n    {\n      \"query\": \"QUERY_1\",\n      \"summary\": \"Detailed findings from the first query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 1\",\n          \"url\": \"URL_1\",\n          \"author\": \"Author Name 1\",\n          \"year\": \"2023\"\n        },\n        {\n          \"title\": \"Title of Source 2\",\n          \"url\": \"URL_2\",\n          \"author\": \"Author Name 2\",\n          \"year\": \"2022\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_2\",\n      \"summary\": \"Detailed findings from the second query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 3\",\n          \"url\": \"URL_3\",\n          \"author\": \"Author Name 3\",\n          \"year\": \"2021\"\n        },\n        {\n          \"title\": \"Title of Source 4\",\n          \"url\": \"URL_4\",\n          \"author\": \"Author Name 4\",\n          \"year\": \"2020\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_3\",\n      \"summary\": \"Detailed findings from the third query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 5\",\n          \"url\": \"URL_5\",\n          \"author\": \"Author Name 5\",\n          \"year\": \"2019\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_4\",\n      \"summary\": \"Detailed findings from the fourth query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 6\",\n          \"url\": \"URL_6\",\n          \"author\": \"Author Name 6\",\n          \"year\": \"2023\"\n        },\n        {\n          \"title\": \"Title of Source 7\",\n          \"url\": \"URL_7\",\n          \"author\": \"Author Name 7\",\n          \"year\": \"2022\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_5\",\n      \"summary\": \"Detailed findings from the fifth query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 8\",\n          \"url\": \"URL_8\",\n          \"author\": \"Author Name 8\",\n          \"year\": \"2021\"\n        }\n      ]\n    }\n  ]\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1480,
+        100
+      ],
+      "id": "5e7e4095-5ab7-426b-aaa0-070263cd5c07",
+      "name": "Research Manager"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"topic\": \"USER_TOPIC\",\n  \"searchQueries\": [\n    \"Query_1\",\n    \"Query_2\",\n    \"Query_3\",\n    \"Query_4\",\n    \"Query_5\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1220,
+        300
+      ],
+      "id": "6620091a-1a5d-4367-a5d7-7b797a8a9fa0",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "content": "## Research Query Refiner\n- Redefines research or question\n- Generates unique search queries\n",
+        "height": 520,
+        "width": 1180,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -80
+      ],
+      "id": "7f953110-4aed-43bc-b021-58fa75e445ed",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Research Manager\n- Conducts research via Web Search\n- Utilizes 5 unique search queries\n- Retrieves tile, author, URL, date and key insights",
+        "height": 520,
+        "width": 840,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -80
+      ],
+      "id": "270bd40d-c6be-4ed7-9c58-8582b03dce2c",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Style Guide & Research Compiler\n- Quality control\n- Markdown formatting\n- APA referencing",
+        "height": 500,
+        "width": 740,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        460
+      ],
+      "id": "b6fa03d9-4a4b-400b-b069-7fcce2865f8b",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={\n  \"topic\": \"{{ $json.output.topic }}\",\n  \"results\": [\n    {\n      \"query\": \"{{ $json.output.results[0].query }}\",\n      \"summary\": \"{{ $json.output.results[0].summary }}\",\n      \"sources\": [\n        {\n          \"title\": \"{{ $json.output.results[0].sources[0].title }}\",\n          \"url\": \"{{ $json.output.results[0].sources[0].url }}\",\n          \"author\": \"{{ $json.output.results[0].sources[0].author }}\",\n          \"year\": \"{{ $json.output.results[0].sources[0].year }}\"\n        },\n        {\n          \"title\": \"{{ $json.output.results[0].sources[1].title }}\",\n          \"url\": \"{{ $json.output.results[0].sources[1].url }}\",\n          \"author\": \"{{ $json.output.results[0].sources[1].author }}\",\n          \"year\": \"{{ $json.output.results[0].sources[1].year }}\"\n        }\n      ]\n    },\n    {\n      \"query\": \"{{ $json.output.results[1].query }}\",\n      \"summary\": \"{{ $json.output.results[1].summary }}\",\n      \"sources\": [\n        {\n          \"title\": \"{{ $json.output.results[1].sources[0].title }}\",\n          \"url\": \"{{ $json.output.results[1].sources[0].url }}\",\n          \"author\": \"{{ $json.output.results[1].sources[0].author }}\",\n          \"year\": \"{{ $json.output.results[1].sources[0].year }}\"\n        }\n      ]\n    },\n    {\n      \"query\": \"{{ $json.output.results[2].query }}\",\n      \"summary\": \"{{ $json.output.results[2].summary }}\",\n      \"sources\": [\n        {\n          \"title\": \"{{ $json.output.results[2].sources[0].title }}\",\n          \"url\": \"{{ $json.output.results[2].sources[0].url }}\",\n          \"author\": \"{{ $json.output.results[2].sources[0].author }}\",\n          \"year\": \"{{ $json.output.results[2].sources[0].year }}\"\n        }\n      ]\n    },\n    {\n      \"query\": \"{{ $json.output.results[3].query }}\",\n      \"summary\": \"{{ $json.output.results[3].summary }}\",\n      \"sources\": [\n        {\n          \"title\": \"{{ $json.output.results[3].sources[0].title }}\",\n          \"url\": \"{{ $json.output.results[3].sources[0].url }}\",\n          \"author\": \"{{ $json.output.results[3].sources[0].author }}\",\n          \"year\": \"{{ $json.output.results[3].sources[0].year }}\"\n        }\n      ]\n    },\n    {\n      \"query\": \"{{ $json.output.results[4].query }}\",\n      \"summary\": \"{{ $json.output.results[4].summary }}\",\n      \"sources\": [\n        {\n          \"title\": \"{{ $json.output.results[4].sources[0].title }}\",\n          \"url\": \"{{ $json.output.results[4].sources[0].url }}\",\n          \"author\": \"{{ $json.output.results[4].sources[0].author }}\",\n          \"year\": \"{{ $json.output.results[4].sources[0].year }}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {
+          "systemMessage": "You are a Research Paper Generator AI specializing in Markdown formatting. Your task is to compile research findings into a comprehensive structured academic research paper with proper citations.\n\n### **Writing Instructions:**\n1. Use a **formal and structured writing style**.\n2. Ensure each section has a **clear transition from the previous section**.\n3. Use **inline citations in the format**: `[Author, Year]`.\n4. Format the **References section using APA style**.\n5. Expand on **economic, ethical, and technical implications**.\n6. Include **real-world case studies where applicable**.\n7. Provide **bullet points for key takeaways in each section**.\n\n### **Styling Instructions:**\n1. Format the research paper using the following structure:\n   - Title (`#`)\n   - Abstract (`##`)\n   - Introduction (`##`)\n   - Main Sections (from research queries) (`##`)\n   - Conclusion (`##`)\n   - References (`##`)\n\n2. Each query must be:\n   - A section title (`## Query Name`)\n   - A summary paragraph\n   - Inline citations formatted as `[Author, Year]`.\n\n3. At the end, include a **References** section formatted as:\nAuthor, Year. Title of the Paper. Available at: [URL]\n\n4. Ensure all citations match the sources provided.\n\n### **Input Format (JSON):**\n{\n\"topic\": \"Machine Learning in Healthcare\",\n\"results\": [\n {\n   \"query\": \"AI applications in diagnosis\",\n   \"summary\": \"AI models have shown promise in diagnosing diseases with higher accuracy than traditional methods.\",\n   \"sources\": [\n     {\"title\": \"Deep Learning in Radiology\", \"url\": \"https://example.com\", \"author\": \"Smith et al.\", \"year\": \"2022\"}\n   ]\n }\n]\n}\n\n### **Expected Markdown Output:**\n# Machine Learning in Healthcare\n\n## Abstract\nThis paper explores AI applications in diagnosis...\n\n## AI Applications in Diagnosis\nAI models have shown promise in diagnosing diseases with higher accuracy [Smith et al., 2022].\n\n### Sources\n- Smith et al., 2022. *Deep Learning in Radiology*. Available at: [https://example.com](https://example.com).\n\n## References\n1. Smith et al., 2022. *Deep Learning in Radiology*. Available at: [https://example.com](https://example.com)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1620,
+        580
+      ],
+      "id": "b6acb68d-fa87-4cbf-b7b9-e311fb59b5c7",
+      "name": "Research Compiler"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Research: \n{{ $('When Executed by Another Workflow').item.json['Research Topic'] }}",
+        "options": {
+          "systemMessage": "Role: You are a Research Assistant specialising in using the web_search tool for gathering additional datasets related to the topic of research provided by the user. \n\nUltimately, your research must be thorough, well-structured with URLs for every additional dataset.\n- Do NOT include research summaries or explanations, only dataset sources.\n- Provide links to the dataset from reputable sources\n- Output in Markdown\n- Include title and concise description why the dataset is relevant to the research topic\n- If you can't find any additional dataset, output: N/A"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        680,
+        480
+      ],
+      "id": "e5603045-6bcd-4eee-8a10-92fe4a00ea11",
+      "name": "Dataset Agent"
+    },
+    {
+      "parameters": {
+        "content": "## Dataset Agent\n- Provides additional datasets\n- Appends existing row if applicable",
+        "height": 500,
+        "width": 1400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        460
+      ],
+      "id": "bf7e0077-cfc9-4634-9155-e86802f43c8b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82bc3d8b-5f1b-4293-b8f6-4443fb14daac",
+              "name": "response",
+              "value": "done",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        580
+      ],
+      "id": "a23c766d-a0cc-4a5b-940b-adf908e7df50",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        1080,
+        300
+      ],
+      "id": "a2933d18-7bdc-4e9c-8b4a-97cc5047e217",
+      "name": "Haiku1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "REDACTED",
+          "name": "Anthropic Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        700
+      ],
+      "id": "4cb53d21-2fb8-4891-af49-04dab4bc0b00",
+      "name": "Haiku3",
+      "credentials": {
+        "anthropicApi": {
+          "id": "REDACTED",
+          "name": "Anthropic Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        1720,
+        300
+      ],
+      "id": "6f82d092-c464-42df-ad14-724d059f146a",
+      "name": "Haiku2",
+      "credentials": {
+        "anthropicApi": {
+          "id": "REDACTED",
+          "name": "Anthropic Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"topic\": \"USER_TOPIC\",\n  \"results\": [\n    {\n      \"query\": \"QUERY_1\",\n      \"summary\": \"Detailed findings from the first query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 1\",\n          \"url\": \"URL_1\",\n          \"author\": \"Author Name 1\",\n          \"year\": \"2023\"\n        },\n        {\n          \"title\": \"Title of Source 2\",\n          \"url\": \"URL_2\",\n          \"author\": \"Author Name 2\",\n          \"year\": \"2022\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_2\",\n      \"summary\": \"Detailed findings from the second query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 3\",\n          \"url\": \"URL_3\",\n          \"author\": \"Author Name 3\",\n          \"year\": \"2021\"\n        },\n        {\n          \"title\": \"Title of Source 4\",\n          \"url\": \"URL_4\",\n          \"author\": \"Author Name 4\",\n          \"year\": \"2020\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_3\",\n      \"summary\": \"Detailed findings from the third query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 5\",\n          \"url\": \"URL_5\",\n          \"author\": \"Author Name 5\",\n          \"year\": \"2019\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_4\",\n      \"summary\": \"Detailed findings from the fourth query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 6\",\n          \"url\": \"URL_6\",\n          \"author\": \"Author Name 6\",\n          \"year\": \"2023\"\n        },\n        {\n          \"title\": \"Title of Source 7\",\n          \"url\": \"URL_7\",\n          \"author\": \"Author Name 7\",\n          \"year\": \"2022\"\n        }\n      ]\n    },\n    {\n      \"query\": \"QUERY_5\",\n      \"summary\": \"Detailed findings from the fifth query\",\n      \"sources\": [\n        {\n          \"title\": \"Title of Source 8\",\n          \"url\": \"URL_8\",\n          \"author\": \"Author Name 8\",\n          \"year\": \"2021\"\n        }\n      ]\n    }\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        300
+      ],
+      "id": "323be71f-900c-4e76-9245-e54b7df40deb",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "name": "web_search",
+        "description": "Call this tool to perform web searches",
+        "workflowId": {
+          "__rl": true,
+          "value": "oczYKKZsxL9kyAe1",
+          "mode": "list",
+          "cachedResultName": "Tool: Perplexity API"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        300
+      ],
+      "id": "2012c9a4-1643-40b8-bdbd-c0068205b2b5",
+      "name": "Perplexity API"
+    },
+    {
+      "parameters": {
+        "name": "web_search",
+        "description": "=Call this tool to perform web searches.\nResearch Topic:\n{{ $json.output }}",
+        "workflowId": {
+          "__rl": true,
+          "value": "oczYKKZsxL9kyAe1",
+          "mode": "list",
+          "cachedResultName": "Tool: Perplexity API"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        700
+      ],
+      "id": "b51d611a-d516-4fd4-8715-438f59eff8fd",
+      "name": "Perplexity API2"
+    },
+    {
+      "parameters": {
+        "text": "=User input:\n{{ $('When Executed by Another Workflow').item.json['Research Topic'] }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "research",
+              "description": "Performs research on any topic, writes research papers, is able to access web searches."
+            },
+            {
+              "name": "dataset",
+              "description": "Finds additional data or datasets to support the research topic."
+            },
+            {
+              "name": "both",
+              "description": "Finds additional data or datasets to support the research topic and performs research on any topic, writes research papers, is able to access web searches."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Classify the user input into one of three categories: \n1) \"research\" if the user asks for research findings.\n2) \"dataset\" if the user asks for datasets.\n3) \"both\" if the user requests both research and datasets."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        380,
+        100
+      ],
+      "id": "1ae5016e-5704-4e18-b251-bfd40b82fa18",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        420,
+        240
+      ],
+      "id": "77ef239a-efdd-4d6b-8298-4b6348aaa687",
+      "name": "DeepSeek V3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "REDACTED",
+          "name": "DeepSeek Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        780
+      ],
+      "id": "108c69c7-7f01-4f98-9ae0-51561a020e4d",
+      "name": "V3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "REDACTED",
+          "name": "DeepSeek Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "research",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_content",
+              "fieldValue": "={{ $('Research Compiler').item.json['output'] }}"
+            },
+            {
+              "fieldId": "research_topic",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json['Research Topic'] }}"
+            },
+            {
+              "fieldId": "additional_datasets",
+              "fieldValue": "N/A"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        580
+      ],
+      "id": "dde80f65-f0d0-4a40-a082-90de60c7d7f3",
+      "name": "Create Row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REDACTED",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.research }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "07f98bf4-adb6-4ec5-9432-3f1d8003e2a5",
+                    "leftValue": "={{ $json.output.dataset }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d3f826a5-68b0-4e3a-b3bb-79d2ea8c06be",
+                    "leftValue": "={{ $json.output.both }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        680,
+        100
+      ],
+      "id": "33f0f272-aec7-4079-b7a6-2a12800407cb",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "research",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "additional_datasets",
+              "condition": "eq",
+              "keyValue": "N/A"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "additional_datasets",
+              "fieldValue": "={{ $('Dataset Agent').item.json['output'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        540
+      ],
+      "id": "79d56799-1771-4dbc-9c1d-8ba01a95a973",
+      "name": "Update Row Datasets",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REDACTED",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "research",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_topic",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json['Research Topic'] }}"
+            },
+            {
+              "fieldId": "additional_datasets",
+              "fieldValue": "={{ $('Dataset Agent').item.json['output'] }}"
+            },
+            {
+              "fieldId": "research_content",
+              "fieldValue": "N/A"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        700
+      ],
+      "id": "793117f0-d07c-408d-a03a-52369bf0f7a5",
+      "name": "Create Row Datasets",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REDACTED",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a0ea1371-b18f-4b4f-bd84-9f5732bf832d",
+              "leftValue": "={{ $('Information Extractor').item.json.output.both }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1020,
+        480
+      ],
+      "id": "86848e4c-71a9-4db9-b1e2-4ab9a8afa6c6",
+      "name": "If1"
+    }
+  ],
+  "pinData": {
+    "Research Manager": [
+      {
+        "json": {
+          "topic": "USER_TOPIC",
+          "results": [
+            {
+              "query": "QUERY_1",
+              "summary": "Detailed findings from the first query",
+              "sources": [
+                {
+                  "title": "Title of Source 1",
+                  "url": "URL_1",
+                  "author": "Author Name 1",
+                  "year": "2023"
+                },
+                {
+                  "title": "Title of Source 2",
+                  "url": "URL_2",
+                  "author": "Author Name 2",
+                  "year": "2022"
+                }
+              ]
+            },
+            {
+              "query": "QUERY_2",
+              "summary": "Detailed findings from the second query",
+              "sources": [
+                {
+                  "title": "Title of Source 3",
+                  "url": "URL_3",
+                  "author": "Author Name 3",
+                  "year": "2021"
+                },
+                {
+                  "title": "Title of Source 4",
+                  "url": "URL_4",
+                  "author": "Author Name 4",
+                  "year": "2020"
+                }
+              ]
+            },
+            {
+              "query": "QUERY_3",
+              "summary": "Detailed findings from the third query",
+              "sources": [
+                {
+                  "title": "Title of Source 5",
+                  "url": "URL_5",
+                  "author": "Author Name 5",
+                  "year": "2019"
+                }
+              ]
+            },
+            {
+              "query": "QUERY_4",
+              "summary": "Detailed findings from the fourth query",
+              "sources": [
+                {
+                  "title": "Title of Source 6",
+                  "url": "URL_6",
+                  "author": "Author Name 6",
+                  "year": "2023"
+                },
+                {
+                  "title": "Title of Source 7",
+                  "url": "URL_7",
+                  "author": "Author Name 7",
+                  "year": "2022"
+                }
+              ]
+            },
+            {
+              "query": "QUERY_5",
+              "summary": "Detailed findings from the fifth query",
+              "sources": [
+                {
+                  "title": "Title of Source 8",
+                  "url": "URL_8",
+                  "author": "Author Name 8",
+                  "year": "2021"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Query Refiner": {
+      "main": [
+        [
+          {
+            "node": "Research Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Manager": {
+      "main": [
+        [
+          {
+            "node": "Research Compiler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Query Refiner",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Compiler": {
+      "main": [
+        [
+          {
+            "node": "Create Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dataset Agent": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haiku1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Query Refiner",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haiku3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Dataset Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haiku2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Manager",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Research Manager",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity API": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Manager",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity API2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Dataset Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek V3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "V3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Compiler",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Row": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Query Refiner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dataset Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dataset Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Query Refiner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Row Datasets": {
+      "main": [
+        []
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update Row Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Row Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "200eb885-abbc-4a65-8254-abe0ea18b690",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31272971d8d890eb8c6d275fdf891e4ad49327bd959a95365dbd22fa8b7c67ae"
+  },
+  "id": "FIMevNeSlnIFy1xs",
+  "tags": []
+}
