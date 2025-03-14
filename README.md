@@ -16,7 +16,7 @@ The agent automates research by querying the Perplexity Sonar API using Claude a
 ![Image](https://github.com/user-attachments/assets/91fceb3b-1658-41a2-aeaf-96733063e370)
 
 ### Web Search Tool (Perplexity Sonar / Openrouter)
-A tool that can be accessed by AI agents to perform web searches using the Perplexity Sonar API via HTTP requests, with OpenRouter support.
+A tool that can be accessed by AI agents to perform web searches using the Perplexity Sonar API via HTTP requests, with [OpenRouter API](https://github.com/jackvandervall/Agentic-Archive/blob/main/N8N%20Tools/Sonar%20Web%20Search%20(OpenRouter%20API).json) support.
 
 ![Image](https://github.com/user-attachments/assets/45407c14-c77c-46f1-9362-4a60ac77c7d9)
 
