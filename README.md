@@ -6,7 +6,7 @@ This archive will consist of free agentic workflows in a plug-and-play format. F
 - N8N Agents
   - [Multi-Model Research Agent](https://github.com/jackvandervall/Agentic-Archive/blob/main/N8N%20Agents/Multi-Model%20Research%20Agent.json)
 - N8N Tools
-  - [Sonar Web Search Perplexity](https://github.com/jackvandervall/Agentic-Archive/blob/main/N8N Tools/Sonar Web Search (Perplexity API).json)
+  - [Sonar Web Search Perplexity](https://github.com/jackvandervall/Agentic-Archive/blob/main/N8N%20Tools/Sonar%20Web%20Search%20(Perplexity%20API).json)
 
 *More coming soon.*
 
