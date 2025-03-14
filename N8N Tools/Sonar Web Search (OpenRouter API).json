@@ -1,0 +1,110 @@
+{
+  "name": "Tool: Perplexity API",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n\"query\": \"TESLA stock price January 13, 2020\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "00b6f7fb-0336-4ea5-bda2-0dbb6d59ee57",
+      "name": "Web Search"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ffaf39c0-81ed-456d-9f7f-61089a5df3af",
+              "name": "response",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "635fcb25-de54-4c28-8f5a-dc7ecf70378e",
+              "name": "citations",
+              "value": "={{ $json.citations }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        0
+      ],
+      "id": "94a4891b-8cdd-4d9f-8c27-50814e4a36d8",
+      "name": "Search Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"perplexity/sonar\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.query }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "ef66670a-b28e-4646-81ca-3f1fb0401af5",
+      "name": "Perplexity/Sonar (OpenRouter)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Web Search": {
+      "main": [
+        [
+          {
+            "node": "Perplexity/Sonar (OpenRouter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity/Sonar (OpenRouter)": {
+      "main": [
+        [
+          {
+            "node": "Search Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72be8fc7-844f-4ce5-8e70-4e0c6c432c61",
+  "meta": {
+    "instanceId": "31272971d8d890eb8c6d275fdf891e4ad49327bd959a95365dbd22fa8b7c67ae"
+  },
+  "id": "oczYKKZsxL9kyAe1",
+  "tags": []
+}
