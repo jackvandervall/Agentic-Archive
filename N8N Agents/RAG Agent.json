@@ -1,0 +1,224 @@
+{
+  "name": "Dashboard",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## RAG + Data Analysis AI Agent\n",
+        "height": 465,
+        "width": 996,
+        "color": 6
+      },
+      "id": "88204961-80ec-47b1-a2d6-bada8d72cf72",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        840
+      ],
+      "id": "77b89cf0-9247-4179-b64e-f71a03ae7d1b",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "",
+          "name": "Anthropic Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=chart_tool",
+        "description": "=Call this tool when necessary to create a chart or visualize data. All string values must be properly escaped, especially for multi-line strings. When processing the output of the tool, URL's returned should always be in markdown format. For exsample: ![](url) \n\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "zQsBgkd3HOqcJr3a",
+          "mode": "list",
+          "cachedResultName": "Sub: Generate Charts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        840
+      ],
+      "id": "ee992124-24c7-48ad-9989-00736105777d",
+      "name": "Chart Tool"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User input:\n{{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a highly skilled Data Analysis Expert specializing in NocoDB queries. Your job is to accurately interpret user requests and generate precise database queries to retrieve relevant information using the NocoDB Tool. If necessary you are able to perform data visualizations using the chart_tool by providing the tool with data.\n\nGuidelines for Query Execution:\n\n- Strictly adhere to the provided table schema. Do not reference columns that do not exist.\n- Use only the available columns to construct queries.\n- When asked for aggregations (e.g., \"average salary\"), apply the appropriate SQL functions.\n- Always return clear, structured results that directly answer the user’s request.\n\nGuidelines for data visualization:\n- Always display the chart_tool response URL in your output, e.g. ![Chart Title](https://quickchart.io/chart?width=200&c=%7B%22type%22%3A%22bar%22%2C%22data%22%3A%7B%22labels%22%3A%5B%22Machine%20Learning%20Scientist%22%2C%22Lead%20Data%20Scientist%22%2C%22Machine%20Learning%20Engineer%22%2C%22Big%20Data%20Engineer%22%2C%22Lead%20Data%20Analyst%22%5D%2C%22datasets%22%3A%5B%7B%22label%22%3A%22Salary%20in%20Rupees%22%2C%22data%22%3A%5B20688070%2C15118205%2C11935425%2C8674985%2C6922547%5D%2C%22backgroundColor%22%3A%5B%22rgba(255%2C%2099%2C%20132%2C%200.6)%22%2C%22rgba(54%2C%20162%2C%20235%2C%200.6)%22%2C%22rgba(255%2C%20206%2C%2086%2C%200.6)%22%2C%22rgba(75%2C%20192%2C%20192%2C%200.6)%22%2C%22rgba(153%2C%20102%2C%20255%2C%200.6)%22%5D%7D%5D%7D%2C%22options%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22Top%205%20Best%20Paying%20Jobs%20in%20Data%20Sector%20(2020)%22%7D%2C%22scales%22%3A%7B%22yAxes%22%3A%5B%7B%22ticks%22%3A%7B%22beginAtZero%22%3Atrue%7D%7D%5D%7D%7D%7D)"
+        }
+      },
+      "id": "c8873f26-c4e0-46f4-8fd3-8fb5c7af8a53",
+      "name": "RAG Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -520,
+        640
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "content": "- Natural language to SQL-query\n- Data interpretation\n- Generate reports\n- Data Visualization",
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        540
+      ],
+      "id": "30f79564-6fcf-470a-9572-0e144bfed1b7",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        840
+      ],
+      "id": "a94e7f1c-67e5-4247-a815-a8f6295bb862",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "data_science_salaries",
+        "limit": 15
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        100,
+        840
+      ],
+      "id": "9015b5e6-a195-47ad-8adc-e47109b838d9",
+      "name": "Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "CNXsB7nmcYBL5Re3",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -680,
+        640
+      ],
+      "id": "3b1aa2ef-fe6b-4f71-a292-8192ad7ab6c4",
+      "name": "When chat message received",
+      "webhookId": "ccb2bc5e-5ecf-487c-a9a2-c4c87bd4eb8a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chart Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bb6694e0-9997-412f-a27f-1c36ec2ac944",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "id": "LJkKBsT9JLJXfNzx",
+  "tags": []
+}

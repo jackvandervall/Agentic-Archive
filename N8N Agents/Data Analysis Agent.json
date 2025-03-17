@@ -1,0 +1,153 @@
+{
+  "name": "Sub: Generate Charts",
+  "nodes": [
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"type\": \"bar\",\n  \"data\": {\n    \"labels\": [\"Category 1\", \"Category 2\", \"Category 3\"],\n    \"datasets\": [\n      {\n        \"label\": \"Dataset 1\",\n        \"data\": [10, 20, 30],\n        \"backgroundColor\": [\n          \"rgba(255, 99, 132, 0.6)\",\n          \"rgba(54, 162, 235, 0.6)\",\n          \"rgba(75, 192, 192, 0.6)\"\n        ]\n      }\n    ]\n  },\n  \"options\": {\n    \"title\": {\n      \"display\": true,\n      \"text\": \"Chart Title\"\n    },\n    \"scales\": {\n      \"x\": {\n        \"title\": {\n          \"display\": true,\n          \"text\": \"X-Axis Label\"\n        }\n      },\n      \"yAxes\": [\n        {\n          \"ticks\": {\n            \"beginAtZero\": true\n          }\n        }\n      ]\n    }\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        220
+      ],
+      "id": "7b0be707-b23a-4e7a-abbd-efb49fce2ea6",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "9b08a574-ab37-42b5-bbe8-c7809a5dc072",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User input:\n{{ $json.query }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# AI Agent Instructions\n\n## Overview\nThis AI agent interprets data visualization requests, generates appropriate chart configurations, and constructs QuickChart-compatible JSON outputs. \n\n## Implementation Steps\n\n### 1. Interpret Data Visualization Requests\n- Identify the appropriate chart type (bar, line, scatter, pie, radar, mixed).\n- Extract and format relevant data points for visualization.\n\n### 2. Generate QuickChart JSON Output\n- **All outputs must strictly follow the JSON format below**.\n- **DO NOT include JavaScript functions** (e.g., `callback`).\n- **DO NOT return any text**, only structured JSON.\n- Ensure **numeric values remain raw integers/floats (not strings).**\n- **Use `\"yAxes\"` (array) instead of `\"y\"` for bar and line charts.**\n- **For scatter plots, use `\"x\"` and `\"y\"`, NOT `\"labels\"`.**\n- **For pie/doughnut charts, DO NOT include `\"scales\"` or `\"yAxes\"`.**\n- The output must match this format:\n\n```json\n{\n  \"type\": \"<chart_type>\",\n  \"data\": {\n    \"labels\": [\"Category 1\", \"Category 2\", \"Category 3\"],\n    \"datasets\": [\n      {\n        \"label\": \"Dataset 1\",\n        \"data\": [10, 20, 30],\n        \"backgroundColor\": [\n          \"rgba(255, 99, 132, 0.6)\",\n          \"rgba(54, 162, 235, 0.6)\",\n          \"rgba(75, 192, 192, 0.6)\"\n        ]\n      }\n    ]\n  },\n  \"options\": {\n    \"title\": {\n      \"display\": true,\n      \"text\": \"Chart Title\"\n    },\n    \"scales\": {\n      \"x\": {\n        \"title\": {\n          \"display\": true,\n          \"text\": \"X-Axis Label\"\n        }\n      },\n      \"yAxes\": [\n        {\n          \"ticks\": {\n            \"beginAtZero\": true\n          }\n        }\n      ]\n    }\n  }\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        380,
+        0
+      ],
+      "id": "5b6546fe-712e-482a-ba7b-91795d65ca18",
+      "name": "Chart Agent",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b482e66b-d04a-43d0-b229-402cf6cd4abd",
+              "name": "response",
+              "value": "={{ `https://quickchart.io/chart?width=200&c=${encodeURIComponent(typeof $json.output === 'string' ? $json.output : JSON.stringify($json.output))}` }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        0
+      ],
+      "id": "33530a2c-ba83-4226-8c7d-ece6d92c8361",
+      "name": "Quickchart Link"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        460,
+        220
+      ],
+      "id": "5d43e5ca-3bbb-45d8-9beb-86b33c1248da",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "",
+          "name": "DeepSeek Account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Chart Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Chart Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chart Agent": {
+      "main": [
+        [
+          {
+            "node": "Quickchart Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chart Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b32b6d34-b830-4afb-a0c0-d2e2455211ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "id": "zQsBgkd3HOqcJr3a",
+  "tags": []
+}
