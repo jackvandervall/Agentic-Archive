@@ -1,5 +1,5 @@
 ﻿# Agentic-Archive
-This archive will consist of free agentic workflows in a plug-and-play format. Feel free to [reach out](d#connect-with-me) for support or suggestions.
+This archive will consist of free agentic workflows in a plug-and-play format. Feel free to [reach out](#connect-with-me) for support or suggestions.
 
 
 ## Table of Contents
