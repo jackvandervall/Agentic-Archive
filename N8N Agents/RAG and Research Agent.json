@@ -1,0 +1,700 @@
+{
+  "name": "Dashboard",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        80
+      ],
+      "id": "83c72860-e2c0-44fe-8ddc-8cdfdcdf062a",
+      "name": "When chat message received",
+      "webhookId": "faa50c75-79f8-4728-b782-60ef0802af23"
+    },
+    {
+      "parameters": {
+        "content": "## RAG + Data Analysis AI Agent\n",
+        "height": 465,
+        "width": 816,
+        "color": 6
+      },
+      "id": "88204961-80ec-47b1-a2d6-bada8d72cf72",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        760,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-haiku-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        880
+      ],
+      "id": "",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "",
+          "name": "Anthropic Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=chart_tool",
+        "description": "=Call this tool when necessary to create a chart or visualize data. All string values must be properly escaped, especially for multi-line strings. When processing the output of the tool, URL's returned should always be in markdown format. For example: ![](url) \n\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "zQsBgkd3HOqcJr3a",
+          "mode": "list",
+          "cachedResultName": "Sub: Generate Charts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        880
+      ],
+      "id": "ee992124-24c7-48ad-9989-00736105777d",
+      "name": "Chart Tool"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User input:\n{{ $('Interaction').item.json.chatInput }}\nHere is sample data so you know what to work with: \n{{ $('Sample Data').item.json.sample_data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a highly skilled Data Analysis Expert specializing in retrieving data using SQL queries. Your job is to accurately interpret user requests and generate precise database queries to retrieve relevant information using the Supabase tool. \nIf necessary you are able to perform data visualizations using the chart tool by providing it with data appropriate to visualize.\n\nGuidelines for query execution:\n- Strictly adhere to the provided table schema. Do not reference columns that do not exist.\n- Use only the available columns that are within the sample data to construct queries.\n- When asked for aggregations (e.g., \"average salary\"), apply the appropriate SQL functions.\n- Always return clear, structured results that directly answer the user’s request.\n\nGuidelines for data visualization:\n- Always display the chart tool response URL in your output, e.g. ![Chart Title](URL)"
+        }
+      },
+      "id": "c8873f26-c4e0-46f4-8fd3-8fb5c7af8a53",
+      "name": "RAG Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        800,
+        680
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "text": "=User input:\n{{ $('When chat message received').item.json.chatInput }}\nrag_agent dataset for context:\n{{ $json.table_name }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "rag_agent",
+              "description": "Performs SQL queries, data extraction and visualization on an existing dataset."
+            },
+            {
+              "name": "research_agent",
+              "description": "Performs research on any topic, writes research papers, is able to access web searches and finds additional datasets."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nDetermine whether to perform data extraction and visualisation from a dataset OR to delegate this prompt to a research team of agents that is able to create research papers and look for additional datasets."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        860,
+        160
+      ],
+      "id": "cbd89575-2b50-4241-a906-7506a9d81327",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b80831d8-c653-4203-8706-adedfdb98f77",
+              "name": "sessionId",
+              "value": "={{ $('Interaction').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "48a9be07-c334-48fc-9341-ec043215a7a8",
+              "name": "input",
+              "value": "={{ $('Interaction').item.json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "9378d216-8a6b-4d37-9735-8ab955dc85e9",
+              "name": "sample_data",
+              "value": "={{ $('Sample Data').item.json.sample_data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6875f71a-11b5-41c8-9d7c-7b030a7aa607",
+      "name": "Metadata Extraction",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "FIMevNeSlnIFy1xs",
+          "mode": "list",
+          "cachedResultName": "Sub: Multi-Agent Research"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Research Topic": "={{ $('When chat message received').item.json.chatInput }}",
+            "submittedAt": "="
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Research Topic",
+              "displayName": "Research Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        60
+      ],
+      "id": "d2e6fed6-50eb-4bbc-91f1-a1dbe11cae83",
+      "name": "Execute Research"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        960,
+        300
+      ],
+      "id": "",
+      "name": "DeepSeek V3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "",
+          "name": "DeepSeek Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.research_agent }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "07f98bf4-adb6-4ec5-9432-3f1d8003e2a5",
+                    "leftValue": "={{ $json.output.rag_agent }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1140,
+        160
+      ],
+      "id": "9955247d-0ef1-49cb-a3ae-4c0c20075514",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "content": "## Chat Interface and Orchestration",
+        "height": 540,
+        "width": 1300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        20
+      ],
+      "id": "83d5661d-b9c5-4dd3-ad2f-a10666631826",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "- Natural language to SQL-query\n- Data interpretation\n- Generate reports\n- Visualise data",
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        540
+      ],
+      "id": "30f79564-6fcf-470a-9572-0e144bfed1b7",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "- Provide chat input\n- Automated task delegation to other agents\n- Extract metadata for DB context"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        420
+      ],
+      "id": "77e6f863-1c76-4b32-8ae7-bc7a6bd7171f",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Multi-Model Research Trigger ",
+        "height": 260,
+        "width": 420,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "52aa1e95-9335-4882-abb3-f6785fa31825",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "data_science_salaries",
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        880
+      ],
+      "id": "",
+      "name": "Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1160,
+        680
+      ],
+      "id": "5e8ee4a8-992e-48fb-a537-7f938e002010",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "path",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        140,
+        240
+      ],
+      "id": "84e8904e-b5d2-4f4f-9ea2-19e7a687991c",
+      "name": "Webhook",
+      "webhookId": "f07b81ff-c160-4a85-bb00-064a7733e6d2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8LGq0wagfRBdhvyO",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        860,
+        880
+      ],
+      "id": "846a44aa-f6a6-4700-86f7-dec432af5ccc",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "xmtMXx9YqvgxYTxT",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://<your_database>.supabase.co/rest/v1/<your_table>?select=*&limit=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        160
+      ],
+      "id": "def420b9-355e-473a-9d09-c3b71ba7320d",
+      "name": "HTTP Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "76b2c446-4728-4275-9ae0-b736518a68e2",
+              "name": "sample_data",
+              "value": "={{JSON.stringify($json)}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        160
+      ],
+      "id": "b021e4b4-1cb0-466f-a82b-ded1ecc89881",
+      "name": "Sample Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36ded4d2-d7d9-45ee-b7be-7c1a24968c0d",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput||$json.body.chatInput}}",
+              "type": "string"
+            },
+            {
+              "id": "83c64ac5-3fbd-48b9-964d-9e67038e0bd1",
+              "name": "sessionId",
+              "value": "={{ $json?.sessionId || $json.body.sessionId}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        160
+      ],
+      "id": "6d165c22-815b-42f7-bf8b-cbdbb6bcbd98",
+      "name": "Interaction"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chart Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metadata Extraction": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Research": {
+      "main": [
+        []
+      ]
+    },
+    "DeepSeek V3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Execute Research",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Metadata Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Sample Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interaction": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Data": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7b992281-5d41-4d1d-9c5e-5ee12c93f440",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "31272971d8d890eb8c6d275fdf891e4ad49327bd959a95365dbd22fa8b7c67ae"
+  },
+  "id": "LJkKBsT9JLJXfNzx",
+  "tags": []
+}
